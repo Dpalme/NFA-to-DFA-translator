@@ -17,6 +17,17 @@ class State_switch(object):
                                            self.input_symbol)
 
 
+def write_dfa(table, nodes):
+    with open('./output.txt', 'w') as output:
+        output.write('{')
+        for node, letters in table.items():
+            for letter, transitions in letters.items():
+                if transitions != []:
+                    output.write('(%s,%s,%s)' % (letter, node,
+                                                 str(transitions)))
+        output.write('}')
+
+
 def center_string(text, space):
     spaces = " "*int((space-len(text))/2)
     return "%s%s%s" % (spaces, text, spaces)
@@ -32,6 +43,20 @@ def transition_table(table, nodes, alphabet, space):
         for letter, transitions in letters.items():
             table_entry += center_string(str(transitions), space)
         print(table_entry)
+
+
+def translate_nodes(table, nodes):
+    node_translate = {node: 'q%d' % x for x, node in enumerate(nodes)}
+    translated_table = defaultdict(dict)
+    for node, letters in table.copy().items():
+        new_node = node_translate[node]
+        translated_table[new_node] = letters
+        for letter, transitions in letters.items():
+            if len(transitions) > 1:
+                translated_table[new_node][letter] = node_translate[str(sorted(transitions)).replace("'",'')]
+            elif len(transitions) == 1:
+                translated_table[new_node][letter] = node_translate[transitions[0]]
+    return translated_table, node_translate.values()
 
 
 def join_states(table, nodes, alphabet):
@@ -84,11 +109,12 @@ def input_processing(filename):
 
 
 def main():
-    filename = input('filename: ')
+    filename = input("filename: ")
     table, nodes, alphabet = input_processing(filename)
     dfa_states, nodes = join_states(table, nodes, alphabet)
-    transition_table(dfa_states, nodes, alphabet, 25)
-    # transition_table(dfa_states)
+    dfa_states, nodes = translate_nodes(dfa_states, nodes)
+    transition_table(dfa_states, nodes, alphabet, 8)
+    write_dfa(dfa_states, nodes)
 
 
 if __name__ == "__main__":
