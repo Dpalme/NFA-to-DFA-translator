@@ -1,5 +1,6 @@
 # 	{(0,p,p),(0,p,q),(1,p,p),(0,q,r),(1,q,r),(0,r,s),(0,s,s),(1,s,s)}
 from collections import defaultdict
+import os
 
 
 class State_switch(object):
@@ -110,7 +111,9 @@ def input_processing(filename):
 
 def main():
     filename = input("filename: ")
-    table, nodes, alphabet = input_processing(filename)
+    script_dir = os.path.dirname(__file__)
+    filename_path = os.path.join(script_dir, filename)
+    table, nodes, alphabet = input_processing(filename_path)
     dfa_states, nodes = join_states(table, nodes, alphabet)
     dfa_states, nodes = translate_nodes(dfa_states, nodes)
     transition_table(dfa_states, nodes, alphabet, 8)
